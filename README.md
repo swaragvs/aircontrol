@@ -41,7 +41,14 @@ Requirements: Windows, Python 3.11 or newer, and Inno Setup.
 1. Run `build_windows.bat` from the project root to build `build\windows-dist\AirControl\AirControl.exe`.
 2. Compile `AirControl.iss` using Inno Setup to create `dist\AirControl-Setup.exe`.
 
-The release workflow builds both deliverables when a `v*` tag is pushed. Before tagging, configure the four Android signing secrets documented in the workflow. Keep the release keystore backed up outside the repository; a lost key prevents future Android updates.
+The release workflow builds both deliverables when a `v*` tag is pushed. Before tagging, generate a dedicated Android release keystore outside the repository and back it up securely; a lost key prevents future Android updates. Configure these GitHub Actions repository secrets yourself:
+
+- `KEYSTORE_B64`
+- `KEYSTORE_PASSWORD`
+- `KEY_ALIAS`
+- `KEY_PASSWORD`
+
+Never commit the keystore or put its contents/passwords in source code, chat, or issue reports. The workflow intentionally fails rather than publishing an unsigned release when these secrets are missing.
 
 ### Android APK using Docker
 
