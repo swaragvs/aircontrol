@@ -1,0 +1,42 @@
+node_modules/
+www/
+android/.gradle/
+android/local.properties
+android/**/build/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+.android-keys/
+/build/
+/dist/AirControl/
+/dist/AirControl-Setup.exe
+*.spec
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+build/
+dist/
+*.spec
+
+# Node and Android build output
+node_modules/
+www/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+
+# Local data and credentials
+.android-keys/
+.aircontrol/
+*.jks
+*.keystore
+trusted.json
+settings.json
+*.log
+.env
+
+# IDE and Windows
+.vscode/
+.idea/
+Thumbs.db

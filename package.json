@@ -1,0 +1,26 @@
+{
+  "name": "aircontrol-phone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "cap:sync": "npm run build && cap sync android",
+    "android": "cap open android"
+  },
+  "dependencies": {
+    "@aparajita/capacitor-secure-storage": "8.0.1",
+    "@capacitor-community/keep-awake": "8.0.1",
+    "@capacitor-mlkit/barcode-scanning": "8.2.1",
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/preferences": "8.0.1",
+    "@capacitor/screen-orientation": "8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "typescript": "^7.0.2",
+    "vite": "^7.1.12"
+  }
+}
