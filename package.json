@@ -1,6 +1,6 @@
 {
   "name": "aircontrol-phone",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,8 +19,8 @@
     "@capacitor/screen-orientation": "8.0.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "8.5.3",
-    "typescript": "^7.0.2",
+    "@capacitor/cli": "8.4.3",
+    "typescript": "5.9.3",
     "vite": "^7.1.12"
   }
 }

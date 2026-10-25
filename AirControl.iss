@@ -1,5 +1,5 @@
 #define MyAppName "AirControl"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "0.1.0-alpha"
 
 [Setup]
 AppId={{8A6A62F4-9F89-46A6-92E4-1B67D00F5401}
@@ -18,7 +18,7 @@ CloseApplications=yes
 CloseApplicationsFilter=AirControl.exe
 
 [Files]
-Source: "dist\AirControl\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+Source: "build\windows-dist\AirControl\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
 [Icons]
 Name: "{group}\AirControl"; Filename: "{app}\AirControl.exe"
@@ -35,8 +35,8 @@ Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""A
 Filename: "{app}\AirControl.exe"; Description: "Start AirControl now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{sys}\taskkill.exe"; Parameters: "/F /IM AirControl.exe"; Flags: runhidden
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""AirControl"""; Flags: runhidden
+Filename: "{sys}\taskkill.exe"; Parameters: "/F /IM AirControl.exe"; Flags: runhidden; RunOnceId: "StopAirControl"
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""AirControl"""; Flags: runhidden; RunOnceId: "RemoveAirControlFirewall"
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);

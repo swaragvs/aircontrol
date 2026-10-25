@@ -1,19 +1,8 @@
-node_modules/
-www/
-android/.gradle/
-android/local.properties
-android/**/build/
-android/app/src/main/assets/public/
-android/app/src/main/assets/capacitor.config.json
-.android-keys/
-/build/
-/dist/AirControl/
-/dist/AirControl-Setup.exe
-*.spec
 # Python
 __pycache__/
 *.py[cod]
 .venv/
+.gradle-cache/
 build/
 dist/
 *.spec
@@ -21,20 +10,28 @@ dist/
 # Node and Android build output
 node_modules/
 www/
+phone/dist/
 android/.gradle/
+android/**/.gradle/
 android/build/
 android/app/build/
+android/**/build/
 android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
 
 # Local data and credentials
 .android-keys/
 .aircontrol/
-*.jks
-*.keystore
 trusted.json
 settings.json
+*.jks
+*.keystore
 *.log
 .env
+*.env
+*.pem
+*.p12
 
 # IDE and Windows
 .vscode/

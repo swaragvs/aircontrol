@@ -9,6 +9,7 @@ set "PROJECT_DIR=%~dp0"
 set "IMAGE_NAME=aircontrol-android-builder"
 set "APK_PATH=%PROJECT_DIR%dist\app-debug.apk"
 set "KEYSTORE_DIR=%PROJECT_DIR%.android-keys"
+set "GRADLE_CACHE_DIR=%PROJECT_DIR%.gradle-cache"
 
 echo.
 echo ==========================================
@@ -19,6 +20,7 @@ echo.
 
 pushd "%PROJECT_DIR%" >nul
 if not exist "%KEYSTORE_DIR%" mkdir "%KEYSTORE_DIR%"
+if not exist "%GRADLE_CACHE_DIR%" mkdir "%GRADLE_CACHE_DIR%"
 
 REM Check that Docker Desktop / Linux engine is running.
 docker info --format "{{.OSType}}" > "%TEMP%\aircontrol-docker-check.txt" 2>nul
@@ -58,8 +60,8 @@ echo.
 docker run --rm ^
   -v "%PROJECT_DIR%:/workspace" ^
   -v "%KEYSTORE_DIR%:/root/.android" ^
+  -v "%GRADLE_CACHE_DIR%:/root/.gradle" ^
   -w /workspace ^
-  -e "NODE_OPTIONS=--experimental-strip-types" ^
   "%IMAGE_NAME%" ^
   bash -lc "npm ci && npm run build && npx cap sync android && cd android && chmod +x gradlew && ./gradlew assembleDebug && mkdir -p /workspace/dist && cp app/build/outputs/apk/debug/app-debug.apk /workspace/dist/app-debug.apk"
 
