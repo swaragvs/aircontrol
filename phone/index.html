@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>AirControl</title>
+<style>
+:root{--bg:#1c2530;--panel:#2a3644;--line:#3d4b5c;--text:#eef1f4;--muted:#9aa8b8;--accent:#f5b942;--ink:#1c2530}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);overscroll-behavior:none;user-select:none;-webkit-user-select:none}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--muted);font-size:14px}
+#dot{width:10px;height:10px;border-radius:50%;background:#c0564b}
+#dot.on{background:#6bcf8e}
+main{flex:1;min-height:0;position:relative}
+.panel{position:absolute;inset:0;padding:6px 16px 12px;display:none;flex-direction:column;gap:12px}
+.panel.show{display:flex}
+.surface{flex:1;min-height:0;background:var(--panel);border:2px solid var(--line);border-radius:22px;display:flex;align-items:center;
+  justify-content:center;text-align:center;color:var(--muted);touch-action:none;padding:20px}
+.surface.active{border-color:var(--accent);color:var(--text);background:#33425a}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+button{font:inherit;color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:14px 6px;touch-action:manipulation}
+button:active,button.on{background:var(--accent);color:var(--ink);border-color:var(--accent)}
+.big{padding:22px 6px;font-weight:600}
+#scroll{flex:0 0 52px;writing-mode:vertical-rl}
+.air{display:flex;gap:12px;flex:1;min-height:0}
+.air .surface{flex:1}
+.side{display:flex;flex-direction:column;gap:10px;width:76px}
+.side button{flex:1;padding:0}
+details{background:var(--panel);border-radius:14px;padding:10px 14px;font-size:14px;color:var(--muted)}
+details label{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:10px;color:var(--text)}
+select,input[type=range]{font:inherit;max-width:55%}
+textarea{width:100%;height:56px;font:inherit;color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:12px;
+  user-select:text;-webkit-user-select:text;resize:none}
+textarea:focus{outline:none;border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.grid button{padding:12px 4px;font-size:14px}
+[hidden]{display:none!important}
+#p-keys{overflow-y:auto}
+#recenter{font-size:13px}
+output{color:var(--accent);font-size:13px;min-width:2.5em;text-align:right}
+nav{display:flex;border-top:1px solid var(--line);background:#18202a}
+nav button{flex:1;border:0;border-radius:0;background:none;padding:16px 4px;color:var(--muted);font-weight:600}
+nav button.on{color:var(--accent);background:none}
+#home-screen{padding:24px 18px;overflow:auto}
+#home-screen h1{margin:12px 0 4px}
+#home-screen p{color:var(--muted)}
+#laptop-list{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+.laptop{display:flex;align-items:center;gap:12px;text-align:left;padding:16px;width:100%}
+.laptop-info{flex:1;min-width:0}
+.laptop-name{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.laptop-last{display:block;color:var(--muted);font-size:13px}
+.online-dot{width:10px;height:10px;flex:0 0 auto;border-radius:50%;background:#c0564b}
+.online-dot.on{background:#6bcf8e}
+#scan-qr{width:100%;padding:18px;font-weight:600;background:var(--accent);color:var(--ink);border-color:var(--accent)}
+#auto-connect{margin-top:18px}
+#home-status{min-height:1.4em;color:var(--muted)}
+#control-screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:5}
+#pill{position:fixed;top:calc(env(safe-area-inset-top) + 4px);left:50%;translate:-50% 0;width:56px;height:6px;border-radius:3px;border:0;background:#ffffff55;z-index:20;padding:0}
+#bar{position:fixed;inset:0 0 auto 0;display:flex;gap:8px;align-items:center;padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;background:#18202af2;transform:translateY(-110%);transition:transform .2s;z-index:19}
+#bar.show{transform:none}
+#barName{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bar button{padding:8px;font-size:13px}
+#expiry-banner,#reconnect-overlay{position:fixed;z-index:18;background:#18202af2;border:1px solid var(--line);border-radius:14px;padding:14px;left:12px;right:12px;text-align:center}
+#expiry-banner{top:calc(env(safe-area-inset-top) + 52px)}
+#reconnect-overlay{top:50%;transform:translateY(-50%)}
+#reconnect-overlay button{margin:8px}
+#type-code-toggle{width:100%;margin-top:10px}
+#pair-fallback{position:fixed;inset:0;z-index:30;background:#18202af2;display:flex;align-items:center;justify-content:center;padding:20px}
+#pair-fallback-card{width:min(100%,32rem);background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:20px}
+#pair-json{width:100%;height:140px;margin:12px 0;font:14px/1.4 monospace;color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px;user-select:text;-webkit-user-select:text;resize:vertical}
+#pair-error{color:#f5b942;min-height:1.4em}
+#scanner-progress{position:fixed;z-index:29;top:calc(env(safe-area-inset-top) + 16px);left:12px;right:12px;padding:14px;background:#18202af2;border:1px solid var(--line);border-radius:14px;text-align:center}
+</style></head>
+<body>
+<section id="home-screen">
+  <h1>AirControl</h1>
+  <p>Choose a saved laptop or pair a new one.</p>
+  <p>Use a trusted private Wi-Fi network; control traffic is not encrypted yet.</p>
+  <div id="laptop-list"></div>
+  <button id="scan-qr">Scan QR code</button>
+  <button id="type-code-toggle">Type pairing JSON instead</button>
+  <p id="home-status" role="status"></p>
+  <label id="auto-connect"><input type="checkbox" id="auto-connect-toggle"> Auto-connect to last laptop on launch</label>
+</section>
+<div id="control-screen" hidden>
+<header><span id="dot"></span><span id="status">Connecting…</span></header>
+<main>
+  <section class="panel show" id="p-air">
+    <div class="air">
+      <div class="surface" id="aim">Hold here and tilt the phone like a steering wheel</div>
+      <div class="side">
+        <button class="big" data-click="left">Left</button>
+        <button class="big" data-click="right">Right</button>
+        <button id="recenter">Re-center</button>
+      </div>
+      <div class="surface" id="scroll">Scroll</div>
+    </div>
+    <details><summary>Air mouse settings</summary>
+      <label>Speed <output id="o-sens"></output><input type="range" id="sens" min="2" max="60" value="14"></label>
+      <label>Still zone (degrees) <output id="o-dead"></output><input type="range" id="dead" min="1" max="15" value="4"></label>
+      <label>Tilt for full speed (degrees) <output id="o-max"></output><input type="range" id="max" min="10" max="60" value="28"></label>
+      <label>Acceleration curve <output id="o-curve"></output><input type="range" id="curve" min="10" max="30" value="16"></label>
+      <label>Smoothing <output id="o-smooth"></output><input type="range" id="smooth" min="1" max="10" value="4"></label>
+      <label>Flip left/right <input type="checkbox" id="invx"></label>
+      <label>Flip up/down <input type="checkbox" id="invy"></label>
+    </details>
+  </section>
+
+  <section class="panel" id="p-pad">
+    <div class="surface" id="pad">Touchpad<br>One finger moves, tap clicks, two fingers scroll</div>
+    <div class="row"><button class="big" data-click="left">Left click</button><button class="big" data-click="right">Right click</button></div>
+  </section>
+
+  <section class="panel" id="p-keys">
+    <textarea id="kbd" placeholder="Tap here and type" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false"></textarea>
+    <div class="row" id="mods">
+      <button data-mod="ctrl">Ctrl</button><button data-mod="alt">Alt</button><button data-mod="shift">Shift</button><button data-mod="win">Win</button><button id="fn">Fn</button>
+    </div>
+    <div class="grid" id="fkeys" hidden></div>
+    <div class="grid" id="keys">
+      <button data-k="esc">Esc</button><button data-k="tab">Tab</button><button data-k="backspace">Back</button><button data-k="enter">Enter</button>
+      <button data-k="home">Home</button><button data-k="up">▲</button><button data-k="end">End</button><button data-k="delete">Del</button>
+      <button data-k="left">◀</button><button data-k="down">▼</button><button data-k="right">▶</button><button data-k="space">Space</button>
+      <button data-k="c" data-m="ctrl">Copy</button><button data-k="v" data-m="ctrl">Paste</button><button data-k="z" data-m="ctrl">Undo</button><button data-k="tab" data-m="alt">Alt+Tab</button>
+      <button data-k="win">Win</button><button data-k="d" data-m="win">Win+D</button><button data-k="tab" data-m="win">Win+Tab</button><button data-k="f4" data-m="alt">Alt+F4</button>
+      <button data-k="voldown">Vol −</button><button data-k="volup">Vol +</button><button data-k="mute">Mute</button><button data-k="play">Play</button>
+    </div>
+  </section>
+</main>
+<nav><button class="on" data-tab="air">Air mouse</button><button data-tab="pad">Touchpad</button><button data-tab="keys">Keyboard</button></nav>
+<button id="pill" aria-label="Menu"></button>
+<div id="bar">
+  <span id="barName">Laptop</span>
+  <button id="bScan">Scan QR</button>
+  <button id="bConn">Connections</button>
+  <button id="bDisc">Disconnect</button>
+</div>
+<div id="expiry-banner" hidden>Session expiring soon. <button id="stay">Stay connected</button></div>
+<div id="reconnect-overlay" hidden><div id="reconnect-message">Reconnecting…</div><button id="manual-reconnect" hidden>Reconnect</button><button id="cancel-reconnect">Disconnect</button></div>
+</div>
+<div id="scanner-progress" hidden role="status" aria-live="polite"></div>
+<div id="pair-fallback" hidden>
+  <div id="pair-fallback-card">
+    <h2>Enter pairing code</h2>
+    <p id="pair-error"></p>
+    <label for="pair-json">Paste the pairing JSON displayed on the laptop's AirControl pairing page.</label>
+    <textarea id="pair-json" placeholder='{"v":1,"id":"…","name":"…","host":"…","port":8765,"code":"…"}'></textarea>
+    <button id="pair-submit">Connect</button>
+    <button id="pair-cancel">Cancel</button>
+  </div>
+</div>
+
+<script type="module" src="/app.js"></script>
+</body></html>
