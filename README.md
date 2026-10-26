@@ -41,7 +41,7 @@ Requirements: Windows, Python 3.11 or newer, and Inno Setup.
 1. Run `build_windows.bat` from the project root to build `build\windows-dist\AirControl\AirControl.exe`.
 2. Compile `AirControl.iss` using Inno Setup to create `dist\AirControl-Setup.exe`.
 
-The release workflow builds both deliverables when a `v*` tag is pushed. Before tagging, generate a dedicated Android release keystore outside the repository and back it up securely; a lost key prevents future Android updates. Configure these GitHub Actions repository secrets yourself:
+The release workflow builds both deliverables when a `v*` tag is pushed. A manual `workflow_dispatch` run builds and uploads artifacts without publishing a GitHub release. Before running the Android release build, generate a dedicated Android release keystore outside the repository and back it up securely; a lost key prevents future Android updates. Configure these GitHub Actions repository secrets yourself:
 
 - `KEYSTORE_B64`
 - `KEYSTORE_PASSWORD`
@@ -54,7 +54,23 @@ Never commit the keystore or put its contents/passwords in source code, chat, or
 
 Requirements: Docker Desktop configured for Linux containers.
 
-Run `build_apk.bat` from the project root. The script builds the Android app in Docker and writes `dist\app-debug.apk`; Gradle downloads are cached in the ignored `.gradle-cache` directory. The debug APK is for testing, not a production-signed release. For repeat installs, keep the generated `.android-keys` directory private and backed up; never commit it.
+Run `build_apk.bat` from the project root. The script builds the Android app in Docker and writes `dist\app-debug.apk`; Gradle downloads are cached in the Docker volume `aircontrol-gradle`. The debug APK is for testing, not a production-signed release. For repeat installs, keep the generated `.android-keys` directory private and backed up; never commit it.
+
+Equivalent PowerShell command from the project root:
+
+```powershell
+$project = (Get-Location).Path
+docker run --rm `
+  -v "${PWD}:/workspace" `
+  -v aircontrol-gradle:/root/.gradle `
+  -v "${PWD}\.android-keys:/root/.android" `
+  -w /workspace `
+  -e "NODE_OPTIONS=--experimental-strip-types" `
+  aircontrol-android-builder `
+  bash -lc "npm ci && npm run build && npx cap sync android && cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon --stacktrace && mkdir -p /workspace/dist && cp app/build/outputs/apk/debug/app-debug.apk /workspace/dist/app-debug.apk"
+```
+
+If Gradle stalls or runs out of memory, raise the Docker Desktop/WSL memory limit to about 6 GB and retry.
 
 ## Use
 

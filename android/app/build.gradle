@@ -7,6 +7,9 @@ def releaseSigningValues = [
     keyPassword: System.getenv("KEY_PASSWORD")
 ]
 def hasReleaseSigning = releaseSigningValues.values().every { it }
+def missingReleaseSigningVariables = releaseSigningValues
+    .findAll { name, value -> !value }
+    .keySet()
 
 android {
     namespace = "com.aircontrol.remote"
@@ -42,6 +45,15 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (!hasReleaseSigning && taskGraph.allTasks.any { it.name == "assembleRelease" }) {
+        throw new GradleException(
+            "assembleRelease requires KEYSTORE_PATH, KEYSTORE_PASSWORD, KEY_ALIAS, " +
+            "and KEY_PASSWORD. Missing: ${missingReleaseSigningVariables.join(', ')}."
+        )
     }
 }
 

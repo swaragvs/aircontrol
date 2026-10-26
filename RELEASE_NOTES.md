@@ -10,6 +10,7 @@ AirControl is an early alpha for testing a Windows tray app with an Android phon
 
 - Windows PC and Android phone only.
 - The Windows executable is unsigned, so SmartScreen or antivirus software may warn.
+- SHA-256 checksums for the release files are attached as `SHA256SUMS.txt`.
 - Google Play Services is needed for QR scanning; manual pairing is available.
 - Windows lock screen, elevated UAC prompts, Fn, and hardware-specific brightness keys are not supported.
 - The laptop must remain awake and reachable on the same Wi-Fi.
